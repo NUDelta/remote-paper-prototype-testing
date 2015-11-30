@@ -6,7 +6,17 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="edu.delta.aspin.rpptglass.MainActivityFragment">
+    tools:context="edu.delta.aspin.rpptglass.MainActivityFragment"
+    android:background="#000000">
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Remote Paper Prototype Testing"
+        android:id="@+id/textView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ffffff" />
 </RelativeLayout>
