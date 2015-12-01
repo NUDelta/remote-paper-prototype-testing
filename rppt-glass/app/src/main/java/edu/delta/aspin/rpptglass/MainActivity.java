@@ -1,8 +1,6 @@
 package edu.delta.aspin.rpptglass;
 
 import android.content.Intent;
-import android.gesture.GestureOverlayView;
-import android.gesture.GestureUtils;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
@@ -12,6 +10,11 @@ import android.view.MotionEvent;
 
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.Map;
 
 import im.delight.android.ddp.MeteorCallback;
 import im.delight.android.ddp.MeteorSingleton;
@@ -20,8 +23,7 @@ import im.delight.android.ddp.ResultListener;
 public class MainActivity extends Activity implements MeteorCallback {
 
     private static final String TAG = "RPPT MainActivity";
-    private static final String METEOR_URL = "ws://10.0.2.2:3000/websocket";
-
+    private static final String METEOR_URL = "ws://rppt.meteor.com/websocket";
     private static final Integer QR_CODE_MODE = 0;
 
     private GestureDetector mGestureDetector;
@@ -48,7 +50,6 @@ public class MainActivity extends Activity implements MeteorCallback {
                 Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                 intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
                 startActivityForResult(intent, QR_CODE_MODE);
-//                startActivity(new Intent(PrototypeActivity.this, CameraActivity.class));
                 return true;
             case R.id.quit:
                 finish();
@@ -60,10 +61,7 @@ public class MainActivity extends Activity implements MeteorCallback {
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        if (mGestureDetector != null) {
-            return mGestureDetector.onMotionEvent(event);
-        }
-        return false;
+        return mGestureDetector != null && mGestureDetector.onMotionEvent(event);
     }
 
     private void setupGestureDetector() {
@@ -108,48 +106,60 @@ public class MainActivity extends Activity implements MeteorCallback {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final MainActivity self = this;
         if (requestCode == QR_CODE_MODE) {
-            Log.v(TAG, data.getStringExtra("SCAN_RESULT"));
+            String syncCode = data.getStringExtra("SCAN_RESULT");
+            Log.v(TAG, String.format("Scan result: %s", syncCode));
+            MeteorSingleton.getInstance().call(
+                    "getStreamData",
+                    new Object[]{syncCode, "publisher"},
+                    new ResultListener() {
+                        @Override
+                        public void onSuccess(String result) {
+                            Log.v(TAG, String.format("Got result: %S", result));
+                            Type type = new TypeToken<Map<String, String>>(){}.getType();
+                            Gson gson = new Gson();
+                            Map<String, String> credentials = gson.fromJson(result, type);
+
+                            Intent intent = new Intent(self, StreamActivity.class);
+                            intent.putExtra("key", credentials.get("key"));
+                            intent.putExtra("session", credentials.get("session"));
+                            intent.putExtra("token", credentials.get("token"));
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onError(String s, String s1, String s2) {
+                            Log.v(TAG, "Something went wrong.");
+                            // TODO: handle this
+                        }
+                    }
+            );
         }
     }
 
     @Override
-    public void onConnect(boolean b) {
+    public void onConnect(boolean signedInAutomatically) {
         Log.v(TAG, String.format("Connected to Meteor server at: %s", METEOR_URL));
-        MeteorSingleton.getInstance().call(
-                "getStreamData",
-                new Object[]{"hello", "publisher"},
-                new ResultListener() {
-                    @Override
-                    public void onSuccess(String s) {
-                        Log.v(TAG, s); // This is JSON, requires parsing.
-                    }
-
-                    @Override
-                    public void onError(String s, String s1, String s2) {
-
-                    }
-                }
-        );
     }
 
     @Override
-    public void onDisconnect(int i, String s) {
-        Log.v(TAG, String.format("Disconnected from Meteor server at: %s", METEOR_URL));
+    public void onDisconnect(int code, String reason) {
+        Log.v(TAG, String.format("Disconnected from Meteor server at: %s. Reason: %s", METEOR_URL, reason));
     }
 
     @Override
-    public void onDataAdded(String s, String s1, String s2) {
+    public void onDataAdded(String collectionName, String documentID, String newValuesJson) {
 
     }
 
     @Override
-    public void onDataChanged(String s, String s1, String s2, String s3) {
+    public void onDataChanged(String collectionName, String documentID, String updatedValuesJson, String removedValuesJson) {
 
     }
 
     @Override
-    public void onDataRemoved(String s, String s1) {
+    public void onDataRemoved(String collectionName, String documentID) {
 
     }
 

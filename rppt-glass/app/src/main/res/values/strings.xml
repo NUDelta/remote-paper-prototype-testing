@@ -2,6 +2,7 @@
     <string name="app_name">Remote Paper Prototype Testing Glass</string>
     <string name="title_activity_main">Remote Paper Prototype Testing</string>
     <string name="menu_scan">Scan Code</string>
+    <string name="menu_pause">Pause</string>
     <string name="menu_quit">Quit</string>
     <string name="voice_trigger">Prototype</string>
     <string name="title_activity_stream">StreamActivity</string>

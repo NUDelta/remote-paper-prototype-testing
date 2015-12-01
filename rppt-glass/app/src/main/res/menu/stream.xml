@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.delta.aspin.rpptglass.StreamActivity">
+    <item
+        android:id="@+id/pause"
+        android:title="@string/menu_pause" />
+    <item
+        android:id="@+id/quit"
+        android:title="@string/menu_quit" />
+</menu>
