@@ -3,9 +3,13 @@ package edu.delta.aspin.rpptglass;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import com.google.android.glass.touchpad.Gesture;
+import com.google.android.glass.touchpad.GestureDetector;
 import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
@@ -25,10 +29,13 @@ public class StreamActivity extends Activity implements Session.SessionListener,
     private Publisher mPublisher;
     private RelativeLayout mPublisherViewContainer;
 
+    private GestureDetector mGestureDetector;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stream);
+        setupGestureDetector();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Intent intent = getIntent();
@@ -46,6 +53,53 @@ public class StreamActivity extends Activity implements Session.SessionListener,
         // TODO: Handle stream deletion
         // TODO: Add pausing stream
         // TODO: Handle closing Glass app
+    }
+
+    private void setupGestureDetector() {
+        mGestureDetector = new GestureDetector(this);
+        mGestureDetector.setBaseListener(new GestureDetector.BaseListener() {
+            @Override
+            public boolean onGesture(Gesture gesture) {
+                switch (gesture) {
+                    case TAP:
+                        openOptionsMenu();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        mGestureDetector.setFingerListener(new GestureDetector.FingerListener() {
+            @Override
+            public void onFingerCountChanged(int previousCount, int currentCount) {
+            }
+        });
+        mGestureDetector.setScrollListener(new GestureDetector.ScrollListener() {
+            @Override
+            public boolean onScroll(float displacement, float delta, float velocity) {
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.stream, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.pause:
+
+                return true;
+            case R.id.quit:
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

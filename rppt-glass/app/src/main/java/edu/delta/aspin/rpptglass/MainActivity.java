@@ -129,9 +129,11 @@ public class MainActivity extends Activity implements MeteorCallback {
                         }
 
                         @Override
-                        public void onError(String s, String s1, String s2) {
-                            Log.v(TAG, "Something went wrong.");
-                            // TODO: handle this
+                        public void onError(String error, String reason, String details) {
+                            // TODO: Handle this, usually results from no matching key
+                            Log.w(TAG, String.format("Error: %s", error));
+                            Log.w(TAG, String.format("Reason: %s", reason));
+                            Log.w(TAG, String.format("Details: %s", details));
                         }
                     }
             );
