@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
@@ -55,6 +56,12 @@ public class StreamActivity extends Activity implements Session.SessionListener,
         // TODO: Handle closing Glass app
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSession.disconnect();
+    }
+
     private void setupGestureDetector() {
         mGestureDetector = new GestureDetector(this);
         mGestureDetector.setBaseListener(new GestureDetector.BaseListener() {
@@ -89,17 +96,33 @@ public class StreamActivity extends Activity implements Session.SessionListener,
     }
 
     @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+//        if (mSession.)
+//            menu.getItem(1).setEnabled(false);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.pause:
-
+            case R.id.resume:
+                mSession.connect(TOKEN);
+                return true;
+            case R.id.stop:
+                mSession.disconnect();
                 return true;
             case R.id.quit:
-
+                mSession.disconnect();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        return mGestureDetector != null && mGestureDetector.onMotionEvent(event);
     }
 
     @Override
@@ -139,7 +162,6 @@ public class StreamActivity extends Activity implements Session.SessionListener,
         }
 
         mPublisher = null;
-        mSession = null;
     }
 
     @Override

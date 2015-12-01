@@ -99,9 +99,13 @@ public class MainActivity extends Activity implements MeteorCallback {
 //        } else {
 //            MeteorSingleton.getInstance().reconnect();
 //        }
+        if (!MeteorSingleton.hasInstance()) {
+            MeteorSingleton.createInstance(this, METEOR_URL);
+            MeteorSingleton.getInstance().setCallback(this);
+        } else {
+            MeteorSingleton.getInstance().reconnect();
+        }
 
-        MeteorSingleton.createInstance(this, METEOR_URL);
-        MeteorSingleton.getInstance().setCallback(this);
     }
 
     @Override
