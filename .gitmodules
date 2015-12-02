@@ -1,3 +1,6 @@
 [submodule "rppt-web"]
 	path = rppt-web
 	url = git@github.com:NUDelta/rppt-web.git
+[submodule "rppt-ios"]
+	path = rppt-ios
+	url = git@github.com:NUDelta/rppt-ios.git
